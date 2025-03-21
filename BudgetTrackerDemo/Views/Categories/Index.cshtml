@@ -1,0 +1,62 @@
+﻿@model IEnumerable<Category>
+@{
+    ViewData["Title"] = "Category List";
+}
+<h2 class="mb-4">My Category</h2>
+
+<a class="btn btn-primary mb-2" asp-action="Create"><i class="fas fa-plus"></i></a>
+
+<table class="table table-bordered table-hover shadow-sm">
+    <thead class="thead-dark">
+        <tr>
+            <th>Name</th>
+            <th class="text-center">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td class="text-center">
+                    <a class="btn btn-warning text-white" asp-action="Edit" asp-route-id="@item.Id">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" onclick="setDeleteId('@item.Id')">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this category?</p>
+            </div>
+            <div class="modal-footer">
+                <form id="deleteForm" method="post">
+                    <input type="hidden" id="deleteExpenseId" name="id" />
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setDeleteId(expenseId) {
+        var form = document.getElementById("deleteForm");
+        document.getElementById("deleteExpenseId").value = expenseId;
+        form.action = "/Categories/Delete/" + expenseId;
+    }
+</script>
