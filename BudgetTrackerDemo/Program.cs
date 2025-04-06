@@ -17,6 +17,13 @@ namespace BudgetTrackerDemo
 
             var app = builder.Build();
 
+            // Initialize the database with the "Uncategorized" category
+            using (var scope = app.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<BudgetTrackerContext>();
+                ApplicationDbInitializer.Initialize(dbContext);
+            }
+
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {

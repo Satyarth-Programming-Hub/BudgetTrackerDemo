@@ -4,40 +4,86 @@
 }
 <h2 class="mb-4">My Expenses</h2>
 
-<a class="btn btn-primary mb-2" asp-action="Create"><i class="fas fa-plus"></i></a>
+<div class="row">
+    <div class="col-md-9">
+        <a class="btn btn-primary mb-2" asp-action="Create"><i class="fas fa-plus"></i></a>
 
-<table class="table table-bordered table-hover shadow-sm">
-    <thead class="thead-dark">
-        <tr>
-            <th>Name</th>
-            <th>Amount</th>
-            <th>Category</th>
-            <th>Date</th>
-            <th class="text-center">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.Name</td>
-                <td class="text-success fw-bold">$@item.Amount.ToString("N2")</td>
-                <td>
-                    <span class="badge bg-primary">@item.Category?.Name</span>
-                </td>
-                <td>@item.Date.ToString("dd MMM yyyy")</td>
-                <td class="text-center">
-                    <a class="btn btn-warning text-white" asp-action="Edit" asp-route-id="@item.Id">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" onclick="setDeleteId('@item.Id')">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+        <table class="table table-bordered table-hover shadow-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td class="text-success fw-bold">$@item.Amount.ToString("N2")</td>
+                        <td>
+                            @if (@item.Category?.Name == "Uncategorized")
+                            {
+                                <span class="text-warning">@item.Category?.Name<i class="fas fa-exclamation-triangle"></i></span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-primary">@item.Category?.Name</span>
+                            }
+                        </td>
+                        <td>@item.Date.ToString("dd MMM yyyy")</td>
+                        <td class="text-center">
+                            <a class="btn btn-warning text-white" asp-action="Edit" asp-route-id="@item.Id">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" onclick="setDeleteId('@item.Id')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="col-md-3">
+        <br /><br />
+        <div class="card shadow p-3">
+            <h5 class="fw-bold">Summary</h5>
+            <ul class="list-group list-group-flush">
+                @foreach (var item in (IEnumerable<dynamic>)ViewBag.CategoryTotals)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            @if (@item.Category == "Uncategorized")
+                            {
+                                <span class="text-warning">
+                                    <i class="fas fa-exclamation-triangle"></i> @item.Category
+                                    <span class="text-muted">(@item.Count)</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <strong>@item.Category</strong>
+                                <span class="text-muted">(@item.Count)</span>
+                            }
+
+                        </div>
+                        <span class="badge bg-primary rounded-pill">@item.Total.ToString("C")</span>
+                    </li>
+                }
+                <li class="list-group-item d-flex justify-content-between align-items-center fw-bold">
+                    Total
+                    <span class="badge bg-success rounded-pill">@ViewBag.GrandTotal.ToString("C")</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">

@@ -3,6 +3,7 @@ using BudgetTrackerDemo.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace BudgetTrackerDemo.Controllers
 {
@@ -16,6 +17,7 @@ namespace BudgetTrackerDemo.Controllers
         public IActionResult Index()
         {
             var expenses = _context.Expenses.Include(e => e.Category).ToList();
+            CalculateTotalExpenses(expenses);
             return View(expenses);
         }
 
@@ -30,6 +32,15 @@ namespace BudgetTrackerDemo.Controllers
         {
             if (expense is null) return View();
 
+            if (expense.CategoryId == Guid.Empty)
+            {
+                var uncategorizedCategory = _context.Categories.FirstOrDefault(c => c.Name == "Uncategorized");
+                if (uncategorizedCategory != null)
+                {
+                    expense.CategoryId = uncategorizedCategory.Id;
+                }
+            }
+
             _context.Expenses.Add(expense);
             _context.SaveChanges();
             return RedirectToAction("Index");
@@ -37,7 +48,7 @@ namespace BudgetTrackerDemo.Controllers
 
         public IActionResult Edit(Guid id)
         {
-            
+
             var savedExpense = _context.Expenses.FirstOrDefault(exp => exp.Id == id);
             if (savedExpense == null) return NotFound();
             ViewData["Categories"] = new SelectList(_context.Categories.ToList(), "Id", "Name");
@@ -75,6 +86,27 @@ namespace BudgetTrackerDemo.Controllers
             return RedirectToAction("Index");
         }
 
+        #region private methods
+        private void CalculateTotalExpenses(List<Expense> expenses)
+        {
+            var categoryTotals = expenses
+                .GroupBy(e => e.Category != null ? e.Category.Name : "Uncategorized")
+                .Select(g => new {
+                    Category = g.Key,
+                    Total = g.Sum(e => e.Amount),
+                    Count = g.Count()
+                })
+                .ToList();
+
+            var grandTotal = categoryTotals.Sum(ct => ct.Total);
+
+            ViewBag.CategoryTotals = categoryTotals;
+            ViewBag.GrandTotal = grandTotal;
+
+
+        }
+
+        #endregion private methods
 
     }
 }
