@@ -1,6 +1,9 @@
 ﻿@model IEnumerable<Category>
 @{
     ViewData["Title"] = "Category List";
+
+    var currentPage = ViewBag.CurrentPage ?? 1;
+    var totalPages = ViewBag.TotalPages ?? 1;
 }
 <h2 class="mb-4">My Category</h2>
 
@@ -30,6 +33,27 @@
         }
     </tbody>
 </table>
+
+<!-- Pagination Controls -->
+<div class="pagination justify-content-center">
+    @if (currentPage > 1)
+    {
+        <a href="@Url.Action("Index", "Categories", new { page = currentPage - 1 })" class="page-item page-link">Previous</a>
+    }
+
+    @for (var i = 1; i <= totalPages; i++)
+    {
+        <a href="@Url.Action("Index", "Categories", new { page = i })" class="page-item @(i == currentPage ? "active" : "")">
+            <span class="page-link">@i</span>
+        </a>
+    }
+
+    @if (currentPage < totalPages)
+    {
+        <a href="@Url.Action("Index", "Categories", new { page = currentPage + 1 })" class="page-item page-link">Next</a>
+    }
+</div>
+
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">

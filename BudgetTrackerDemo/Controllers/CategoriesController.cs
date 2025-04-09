@@ -9,13 +9,28 @@ namespace BudgetTrackerDemo.Controllers
     public class CategoriesController : Controller
     {
         private readonly BudgetTrackerContext _context;
+        #region constants
+        private const int PageSize = 5;
+        #endregion constants
         public CategoriesController(BudgetTrackerContext context)
         {
             _context = context;
         }
-        public IActionResult Index()
+        public IActionResult Index(int page = 1)
         {
-            var categories = _context.Categories.ToList();
+            var totalCategories = _context.Categories.Count();
+
+            var categories = _context.Categories
+                .Skip((page - 1) * PageSize)
+                .Take(PageSize)
+                .ToList();
+
+            var totalPages = (int)Math.Ceiling((double)totalCategories / PageSize);
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            
+
             return View(categories);
         }
 
